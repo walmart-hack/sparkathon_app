@@ -19,7 +19,7 @@ class LoginScreenViewModel @Inject constructor() : ViewModel() {
 }
 
 enum class UserType {
-    Admin,
-    User,
+    Admin,//store manager
+    User,//customers
     Invalid
 }

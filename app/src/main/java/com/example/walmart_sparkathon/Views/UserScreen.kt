@@ -17,7 +17,17 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.walmart_sparkathon.ViewModels.UserScreenViewModel
 import com.example.walmart_sparkathon.ui.theme.SuccessColor
+import com.google.gson.Gson
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import okio.IOException
 
 @Composable
 fun UserScreen(navController: NavController, viewModel: UserScreenViewModel){
@@ -80,6 +90,15 @@ fun UserScreen(navController: NavController, viewModel: UserScreenViewModel){
                     Spacer(modifier = Modifier.height(4.dp))
                 }
             }
+        }
+
+        Button(
+            onClick = {
+                fetch_customer_item_list(itemsList)
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Continue")
         }
     }
 }
@@ -169,5 +188,38 @@ fun ItemView(item: String, onItemClicked: () -> Unit, onItemLongClicked: () -> U
             .padding(16.dp)
     ) {
         Text(text = item)
+    }
+}
+
+fun fetch_customer_item_list(itemsList: List<String>) {
+    val json = Gson().toJson(itemsList)
+
+    // Create the request body
+    val mediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
+    val requestBody = json.toRequestBody(mediaType)
+
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url("http://192.168.29.203:5000/customer-item-list")
+                .post(requestBody)
+                .addHeader("Content-Type", "application/json")
+                .build()
+
+            // Make the request
+            val response = client.newCall(request).execute()
+
+            if (!response.isSuccessful) {
+                throw IOException("Unexpected code $response")
+            }
+
+            // Handle the response (e.g., update UI) on the main thread
+
+            println(response.body?.string())
+        } catch (e: Exception) {
+            // Handle the exception, possibly show a message to the user
+            e.printStackTrace()
+        }
     }
 }
