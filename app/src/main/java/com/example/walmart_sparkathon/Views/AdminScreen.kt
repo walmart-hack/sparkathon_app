@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,19 +25,6 @@ import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
 import com.example.walmart_sparkathon.ViewModels.AdminScreenViewModel
-import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okio.IOException
-import java.io.File
 
 @Composable
 fun AdminScreen(navController: NavController, viewModel: AdminScreenViewModel = viewModel()) {
@@ -50,6 +38,10 @@ fun AdminScreen(navController: NavController, viewModel: AdminScreenViewModel = 
 
     // Retrieve the image URI from the ViewModel
     val imageUri by viewModel.selectedImageUri.collectAsState()
+    val fileName by viewModel.fileName.collectAsState()
+    val width by viewModel.width.collectAsState()
+    val height by viewModel.height.collectAsState()
+    val localContext = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -61,7 +53,7 @@ fun AdminScreen(navController: NavController, viewModel: AdminScreenViewModel = 
         Button(onClick = { imagePickerLauncher.launch("image/*") }) {
             Text("Pick an Image")
         }
-        Button(onClick = {viewModel.send_walmart_image(imageUri)}) {
+        Button(onClick = { viewModel.send_walmart_image(localContext, imageUri) }) {
             Text("Continue")
         }
 
@@ -82,6 +74,12 @@ fun AdminScreen(navController: NavController, viewModel: AdminScreenViewModel = 
                     .height(250.dp)
             )
         } ?: Text("No image selected", fontSize = 18.sp)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display additional information
+        Text(text = "File Name: ${fileName ?: "No file name"}", fontSize = 18.sp)
+        Text(text = "Width: ${width?.toString() ?: "No width"}", fontSize = 18.sp)
+        Text(text = "Height: ${height?.toString() ?: "No height"}", fontSize = 18.sp)
     }
 }
-
