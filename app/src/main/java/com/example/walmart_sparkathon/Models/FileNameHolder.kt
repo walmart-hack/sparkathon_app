@@ -5,4 +5,5 @@ import javax.inject.Singleton
 @Singleton
 object FileNameHolder {
     var fileName: String? = null
+    var imagePath: String? = null
 }

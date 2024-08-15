@@ -1,5 +1,6 @@
 package com.example.walmart_sparkathon
 
+import UserPathSelectScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -11,13 +12,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.walmart_sparkathon.Views.AdminScreen
 import com.example.walmart_sparkathon.Views.AdminSuccess
 import com.example.walmart_sparkathon.Views.ImageTapScreen
 import com.example.walmart_sparkathon.Views.LoginScreen
+import com.example.walmart_sparkathon.Views.SelectProfileScreen
+import com.example.walmart_sparkathon.Views.UserConfirmScreen
+import com.example.walmart_sparkathon.Views.UserFinalMap
 import com.example.walmart_sparkathon.Views.UserScreen
 import com.example.walmart_sparkathon.ui.theme.Walmart_sparkathonTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,9 +48,12 @@ private fun MainScreen(){
         ) {
             innerPadding->
             NavHost(navController = navController,
-                startDestination = "login_screen",
+                startDestination = "enter_screen",
                 modifier = Modifier.padding(innerPadding)
             ){
+                composable(route = "enter_screen"){
+                    SelectProfileScreen(navController = navController)
+                }
                 composable(route = "login_screen"){
                     LoginScreen(navController = navController, viewModel = hiltViewModel())
                 }
@@ -59,6 +68,17 @@ private fun MainScreen(){
                 }
                 composable(route = "admin_success"){
                     AdminSuccess()
+                }
+                composable(route = "user_confirm_screen"){
+                    UserConfirmScreen(navController = navController)
+                }
+                composable(route = "user_start_end_screen"){
+                    UserPathSelectScreen(navController = navController)
+                }
+                composable(
+                    route = "user_map"
+                ) {
+                    UserFinalMap(navController = navController)
                 }
             }
         }

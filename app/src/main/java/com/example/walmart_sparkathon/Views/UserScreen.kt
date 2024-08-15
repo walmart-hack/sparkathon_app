@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.walmart_sparkathon.Models.ItemListHolder
 import com.example.walmart_sparkathon.ViewModels.UserScreenViewModel
 import com.example.walmart_sparkathon.ui.theme.SuccessColor
 import com.google.gson.Gson
@@ -96,6 +97,7 @@ fun UserScreen(navController: NavController, viewModel: UserScreenViewModel){
         Button(
             onClick = {
                 fetch_customer_item_list(itemsList)
+                navController.navigate("user_confirm_screen")
             },
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -227,8 +229,11 @@ fun fetch_customer_item_list(itemsList: List<String>) {
                 val output = jsonResponse.getAsJsonArray("output")
                 val outputList = output.map { it.asString }
 
+                ItemListHolder.item_list = outputList
+                ItemListHolder.user_list = itemsList
                 // Process the output list as needed
                 println("Received output: $outputList")
+                println("Received output: ${ItemListHolder.item_list}")
                 // Example: Update UI here if necessary
 
             } else {
