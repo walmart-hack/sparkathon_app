@@ -341,7 +341,7 @@ fun fetch_customer_item_list(itemsList: List<String>) {
         try {
             val client = OkHttpClient()
             val request = Request.Builder()
-                .url("http://192.168.1.6:8000/customer-item-list")
+                .url("http://192.168.29.203:8000/customer-item-list")
                 .post(requestBody)
                 .addHeader("Content-Type", "application/json")
                 .build()

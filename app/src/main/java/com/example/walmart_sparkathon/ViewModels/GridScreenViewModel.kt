@@ -58,7 +58,7 @@ class GridScreenViewModel : ViewModel() {
 
                 // Define the request
                 val request = Request.Builder()
-                    .url("http://192.168.1.6:8000/insert-coordinates")
+                    .url("http://192.168.29.203:8000/insert-coordinates")
                     .post(requestBody)
                     .build()
 

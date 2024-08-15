@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">walmart_sparkathon</string>
-    <string name="network_ip">192.168.1.6</string>
+    <string name="network_ip">192.168.29.203</string>
     <string name="port_no">8000</string>
 </resources>

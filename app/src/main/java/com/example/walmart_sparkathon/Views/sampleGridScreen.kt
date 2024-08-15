@@ -101,7 +101,7 @@ fun ImageTapScreen(navController: NavController, viewModel: GridScreenViewModel 
                     selectedCategory = category
                     tappedOffsets.lastOrNull()?.let { offset ->
                         viewModel.addCategory(
-                            xCoordinate = offset.x.toInt(),
+                            xCoordinate = offset.x.toInt() - 500,
                             yCoordinate = offset.y.toInt(),
                             categoryName = selectedCategory
                         )

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.walmart_sparkathon.Models.FileNameHolder
+import com.example.walmart_sparkathon.Models.ItemListHolder
 import com.example.walmart_sparkathon.R
 import com.example.walmart_sparkathon.composables.TopBarUser
 import com.example.walmart_sparkathon.ui.theme.OnPrimary
@@ -65,6 +66,8 @@ fun UserPathSelectScreen(navController: NavController) {
         "Toys & Games",
         "Vehicles & Parts"
     )
+
+    var mappedUserCategories = ItemListHolder.item_list
 
     var startDestination by remember { mutableStateOf<String?>(null) }
     var endDestination by remember { mutableStateOf<String?>("anyValue") }
@@ -185,22 +188,26 @@ fun UserPathSelectScreen(navController: NavController) {
         Button(
             onClick = {
                 if (startDestination != null && endDestination != null) {
-                    getImage(
-                        context = context,
-                        imageName = "image.jpg",
-                        categories = categories,
-                        startLocation = startDestination!!,
-                        endLocation = endDestination!!,
-                        onImagePathReady = { path ->
-                            imagePath = path
-                            // Ensure imagePath is available before navigating
-                            Log.d("UserPathScreen","$imagePath")
-                            FileNameHolder.imagePath = imagePath
-                            if (imagePath != null) {
-                                navController.navigate("user_map")
-                            }
+                    FileNameHolder.imageName?.let {
+                        if (mappedUserCategories != null) {
+                            getImage(
+                                context = context,
+                                imageName = it,
+                                categories = mappedUserCategories,
+                                startLocation = startDestination!!,
+                                endLocation = endDestination!!,
+                                onImagePathReady = { path ->
+                                    imagePath = path
+                                    // Ensure imagePath is available before navigating
+                                    Log.d("UserPathScreen","$imagePath")
+                                    FileNameHolder.imagePath = imagePath
+                                    if (imagePath != null) {
+                                        navController.navigate("user_map")
+                                    }
+                                }
+                            )
                         }
-                    )
+                    }
                 }
             },
             colors = ButtonColors(
@@ -249,7 +256,7 @@ fun getImage(
             val body = json.toRequestBody("application/json; charset=utf-8".toMediaType())
 
             val request = Request.Builder()
-                .url("http://192.168.1.6:8000/test") // Update with your API endpoint
+                .url("http://192.168.29.203:8000/generate-path") // Update with your API endpoint
                 .post(body)
                 .build()
 
