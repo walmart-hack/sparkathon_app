@@ -67,7 +67,7 @@ private fun MainScreen(){
                     ImageTapScreen(navController = navController, viewModel = hiltViewModel())
                 }
                 composable(route = "admin_success"){
-                    AdminSuccess()
+                    AdminSuccess(navController = navController)
                 }
                 composable(route = "user_confirm_screen"){
                     UserConfirmScreen(navController = navController)

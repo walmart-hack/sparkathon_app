@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.walmart_sparkathon.R
 import com.example.walmart_sparkathon.ViewModels.GridScreenViewModel
+import com.example.walmart_sparkathon.ui.theme.OnPrimary
+import com.example.walmart_sparkathon.ui.theme.OnSecondary
+import com.example.walmart_sparkathon.ui.theme.PrimaryColor
+import com.example.walmart_sparkathon.ui.theme.SecondaryColor
 
 @Composable
 fun ImageTapScreen(navController: NavController, viewModel: GridScreenViewModel = viewModel()) {
@@ -59,78 +64,101 @@ fun ImageTapScreen(navController: NavController, viewModel: GridScreenViewModel 
         "Vehicles & Parts"
     )
 
-    Box(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
-            .onGloballyPositioned { layoutCoordinates ->
-                containerSize = layoutCoordinates.size // Capture the size of the container
-            }
-            .pointerInput(Unit) {
-                detectTapGestures { offset ->
-                    // Calculate the relative position if the tap is within the image bounds
-                    val relativeX = offset.x - (containerSize.width - imageSize.width) / 2f
-                    val relativeY = offset.y - (containerSize.height - imageSize.height) / 2f
-                    if (relativeX in 0f..imageSize.width.toFloat() && relativeY in 0f..imageSize.height.toFloat()) {
-                        tappedOffset = Offset(relativeX, relativeY)
-                        showCategoryDialog = true
-                    } else {
-                        tappedOffset = null // Ignore taps outside the image
-                    }
-                }
-            }
+            .background(PrimaryColor)
+        ,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Display the image
-        Image(
-            painter = painterResource(id = R.drawable.layout),
-            contentDescription = "Tappable Image",
-            contentScale = ContentScale.Fit,
+        Text(text = "Mark Locations", fontSize = 26.sp, color = OnPrimary)
+        Box(
             modifier = Modifier
+                .weight(1f)
                 .fillMaxSize()
                 .onGloballyPositioned { layoutCoordinates ->
-                    imageSize = layoutCoordinates.size // Capture the image size in pixels
+                    containerSize = layoutCoordinates.size // Capture the size of the container
                 }
-        )
-
-        // Show a dialog to select a category
-        if (showCategoryDialog) {
-            CategorySelectionDialog(
-                categories = categories,
-                onCategorySelected = { category ->
-                    selectedCategory = category
-                    tappedOffset?.let { offset ->
-                        viewModel.addCategory(
-                            xCoordinate = offset.x.toInt(),
-                            yCoordinate = offset.y.toInt(),
-                            categoryName = selectedCategory
-                        )
+                .pointerInput(Unit) {
+                    detectTapGestures { offset ->
+                        // Calculate the relative position if the tap is within the image bounds
+                        val relativeX = offset.x - (containerSize.width - imageSize.width) / 2f
+                        val relativeY = offset.y - (containerSize.height - imageSize.height) / 2f
+                        if (relativeX in 0f..imageSize.width.toFloat() && relativeY in 0f..imageSize.height.toFloat()) {
+                            tappedOffset = Offset(relativeX, relativeY)
+                            showCategoryDialog = true
+                        } else {
+                            tappedOffset = null // Ignore taps outside the image
+                        }
                     }
-                    showCategoryDialog = false
-                },
-                onDismiss = { showCategoryDialog = false }
-            )
-        }
-
-        // Display tapped coordinates relative to the image
-        tappedOffset?.let { offset ->
-            Text(
-                text = "Tapped at: (x: ${offset.x}, y: ${offset.y})",
-                fontSize = 20.sp,
-                color = Color.Black,
+                }
+        ) {
+            // Display the image
+            Image(
+                painter = painterResource(id = R.drawable.layout),
+                contentDescription = "Tappable Image",
+                contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .padding(16.dp)
-                    .background(Color.White.copy(alpha = 0.7f))
+                    .fillMaxSize()
+                    .onGloballyPositioned { layoutCoordinates ->
+                        imageSize = layoutCoordinates.size // Capture the image size in pixels
+                    }
             )
-        }
-    }
 
-    Button(onClick = {
-        viewModel.submitCategory()
-        navController.navigate("admin_success")
-    }) {
-        Text("Submit")
+            // Show a dialog to select a category
+            if (showCategoryDialog) {
+                CategorySelectionDialog(
+                    categories = categories,
+                    onCategorySelected = { category ->
+                        selectedCategory = category
+                        tappedOffset?.let { offset ->
+                            viewModel.addCategory(
+                                xCoordinate = offset.x.toInt(),
+                                yCoordinate = offset.y.toInt(),
+                                categoryName = selectedCategory
+                            )
+                        }
+                        showCategoryDialog = false
+                    },
+                    onDismiss = { showCategoryDialog = false }
+                )
+            }
+
+            // Display tapped coordinates relative to the image
+            tappedOffset?.let { offset ->
+                Text(
+                    text = "",
+                    fontSize = 20.sp,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .background(Color.White.copy(alpha = 0.7f))
+                )
+            }
+        }
+
+        // Submit button at the bottom
+        Button(
+            onClick = {
+                viewModel.submitCategory()
+                navController.navigate("admin_success")
+            },
+            modifier = Modifier
+                .padding(16.dp)
+            ,
+            colors = ButtonColors(
+                containerColor = SecondaryColor,
+                contentColor = OnSecondary,
+                disabledContentColor = OnPrimary,
+                disabledContainerColor = PrimaryColor
+            )
+        ) {
+            Text("Submit")
+        }
     }
 }
+
+
 
 @Composable
 fun CategorySelectionDialog(
