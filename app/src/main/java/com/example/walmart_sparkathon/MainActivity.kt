@@ -10,10 +10,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.walmart_sparkathon.Views.AdminScreen
+import com.example.walmart_sparkathon.Views.AdminSuccess
+import com.example.walmart_sparkathon.Views.ImageTapScreen
 import com.example.walmart_sparkathon.Views.LoginScreen
 import com.example.walmart_sparkathon.Views.UserScreen
 import com.example.walmart_sparkathon.ui.theme.Walmart_sparkathonTheme
@@ -50,6 +53,12 @@ private fun MainScreen(){
                 }
                 composable(route = "admin_screen"){
                     AdminScreen(navController = navController, viewModel = hiltViewModel())
+                }
+                composable(route = "grid_screen"){
+                    ImageTapScreen(navController = navController, viewModel = hiltViewModel())
+                }
+                composable(route = "admin_success"){
+                    AdminSuccess()
                 }
             }
         }

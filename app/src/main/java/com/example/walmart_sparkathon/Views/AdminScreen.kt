@@ -24,6 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberImagePainter
 import coil.transform.CircleCropTransformation
+import com.example.walmart_sparkathon.Models.FileNameHolder
 import com.example.walmart_sparkathon.ViewModels.AdminScreenViewModel
 
 @Composable
@@ -42,6 +43,8 @@ fun AdminScreen(navController: NavController, viewModel: AdminScreenViewModel = 
     val width by viewModel.width.collectAsState()
     val height by viewModel.height.collectAsState()
     val localContext = LocalContext.current
+    FileNameHolder.fileName = viewModel.fileName.collectAsState().value
+
 
     Column(
         modifier = Modifier
@@ -55,6 +58,9 @@ fun AdminScreen(navController: NavController, viewModel: AdminScreenViewModel = 
         }
         Button(onClick = { viewModel.send_walmart_image(localContext, imageUri) }) {
             Text("Continue")
+        }
+        Button(onClick = { navController.navigate("grid_screen") }) {
+            Text("Next")
         }
 
         Spacer(modifier = Modifier.height(16.dp))

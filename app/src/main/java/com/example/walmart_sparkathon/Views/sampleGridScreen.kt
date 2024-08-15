@@ -1,81 +1,167 @@
 package com.example.walmart_sparkathon.Views
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.walmart_sparkathon.R
+import com.example.walmart_sparkathon.ViewModels.GridScreenViewModel
 
 @Composable
-fun dpToPx(dp: Dp): Float {
-    val density = LocalDensity.current.density
-    return dp.value * density
-}
+fun ImageTapScreen(navController: NavController, viewModel: GridScreenViewModel = viewModel()) {
+    var tappedOffset by remember { mutableStateOf<Offset?>(null) }
+    var imageSize by remember { mutableStateOf(IntSize(0, 0)) }
+    var containerSize by remember { mutableStateOf(IntSize(0, 0)) }
+    var showCategoryDialog by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf("") }
 
-@Composable
-fun GridScreen() {
-    // Define your grid size and cell size
-    val density = LocalDensity.current.density
-    val cellWidth = 40.dp.value * density
-    val cellHeight = 40.dp.value * density
-    val numberOfColumns = 1200 / cellWidth.toInt()
-    val numberOfRows = 800 / cellHeight.toInt()
+    // Define the list of categories
+    val categories = listOf(
+        "Animals & Pet Supplies",
+        "Apparel & Accessories",
+        "Arts & Entertainment",
+        "Baby & Toddler",
+        "Business & Industrial",
+        "Cameras & Optics",
+        "Electronics",
+        "Food, Beverages & Tobacco",
+        "Furniture",
+        "Hardware",
+        "Health & Beauty",
+        "Home & Garden",
+        "Luggage & Bags",
+        "Media",
+        "Office Supplies",
+        "Religious & Ceremonial",
+        "Software",
+        "Sporting Goods",
+        "Toys & Games",
+        "Vehicles & Parts"
+    )
 
-    // State to hold tapped cell coordinates
-    var tappedCell by remember { mutableStateOf<Pair<Int, Int>?>(null) }
-
-    // Function to handle cell tap
-    fun onCellTap(row: Int, column: Int) {
-        tappedCell = Pair(row, column)
-    }
-
-    // Display tapped cell coordinates
-    if (tappedCell != null) {
-        Text(text = "Tapped Cell: Row ${tappedCell!!.first}, Column ${tappedCell!!.second}", fontSize = 20.sp)
-    }
-
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(numberOfColumns), // Number of columns calculated
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(numberOfColumns * numberOfRows) { index ->
-            val row = index / numberOfColumns
-            val column = index % numberOfColumns
-            Box(
-                modifier = Modifier
-                    .size(40.dp, 40.dp)
-                    .background(Color.Gray)
-                    .clickable { onCellTap(row, column) }
-            ) {
-                Text(
-                    text = "$row,$column",
-                    color = Color.White,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .onGloballyPositioned { layoutCoordinates ->
+                containerSize = layoutCoordinates.size // Capture the size of the container
             }
+            .pointerInput(Unit) {
+                detectTapGestures { offset ->
+                    // Calculate the relative position if the tap is within the image bounds
+                    val relativeX = offset.x - (containerSize.width - imageSize.width) / 2f
+                    val relativeY = offset.y - (containerSize.height - imageSize.height) / 2f
+                    if (relativeX in 0f..imageSize.width.toFloat() && relativeY in 0f..imageSize.height.toFloat()) {
+                        tappedOffset = Offset(relativeX, relativeY)
+                        showCategoryDialog = true
+                    } else {
+                        tappedOffset = null // Ignore taps outside the image
+                    }
+                }
+            }
+    ) {
+        // Display the image
+        Image(
+            painter = painterResource(id = R.drawable.layout),
+            contentDescription = "Tappable Image",
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxSize()
+                .onGloballyPositioned { layoutCoordinates ->
+                    imageSize = layoutCoordinates.size // Capture the image size in pixels
+                }
+        )
+
+        // Show a dialog to select a category
+        if (showCategoryDialog) {
+            CategorySelectionDialog(
+                categories = categories,
+                onCategorySelected = { category ->
+                    selectedCategory = category
+                    tappedOffset?.let { offset ->
+                        viewModel.addCategory(
+                            xCoordinate = offset.x.toInt(),
+                            yCoordinate = offset.y.toInt(),
+                            categoryName = selectedCategory
+                        )
+                    }
+                    showCategoryDialog = false
+                },
+                onDismiss = { showCategoryDialog = false }
+            )
+        }
+
+        // Display tapped coordinates relative to the image
+        tappedOffset?.let { offset ->
+            Text(
+                text = "Tapped at: (x: ${offset.x}, y: ${offset.y})",
+                fontSize = 20.sp,
+                color = Color.Black,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .background(Color.White.copy(alpha = 0.7f))
+            )
         }
     }
+
+    Button(onClick = {
+        viewModel.submitCategory()
+        navController.navigate("admin_success")
+    }) {
+        Text("Submit")
+    }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PreviewGridScreen() {
-        GridScreen()
+fun CategorySelectionDialog(
+    categories: List<String>,
+    onCategorySelected: (String) -> Unit,
+    onDismiss: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Category") },
+        text = {
+            // Use LazyColumn for a scrollable list
+            LazyColumn {
+                items(categories) { category ->
+                    Text(
+                        text = category,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .clickable {
+                                onCategorySelected(category)
+                                onDismiss() // Close the dialog after selection
+                            }
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
 }
-

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import com.example.walmart_sparkathon.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,7 +59,7 @@ class AdminScreenViewModel @Inject constructor() : ViewModel() {
                         .addFormDataPart("image", imageFile.name, imageFile.asRequestBody("application/octet-stream".toMediaType()))
                         .build()
                     val request = Request.Builder()
-                        .url("http://192.168.29.69:8000/convert-to-grid")
+                        .url("http:///192.168.1.6:8000/convert-to-grid")
                         .post(body)
                         .build()
                     val response = client.newCall(request).execute()
