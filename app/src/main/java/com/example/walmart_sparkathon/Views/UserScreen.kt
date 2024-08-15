@@ -1,23 +1,44 @@
 package com.example.walmart_sparkathon.Views
 
 import android.graphics.Color
+import android.graphics.drawable.shapes.Shape
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.walmart_sparkathon.Models.ItemListHolder
+import com.example.walmart_sparkathon.R
 import com.example.walmart_sparkathon.ViewModels.UserScreenViewModel
+import com.example.walmart_sparkathon.composables.TopBar
+import com.example.walmart_sparkathon.composables.TopBarUser
+import com.example.walmart_sparkathon.ui.theme.LightYellow
+import com.example.walmart_sparkathon.ui.theme.OnPrimary
+import com.example.walmart_sparkathon.ui.theme.PrimaryColor
+import com.example.walmart_sparkathon.ui.theme.SecondaryColor
 import com.example.walmart_sparkathon.ui.theme.SuccessColor
+import com.example.walmart_sparkathon.ui.theme.TertiaryColor
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import kotlinx.coroutines.CoroutineScope
@@ -38,26 +59,53 @@ fun UserScreen(navController: NavController, viewModel: UserScreenViewModel){
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Enter items")
+        TopBarUser()
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column(
+            Modifier
+                .fillMaxWidth(0.9f)
+                .clip(shape = RoundedCornerShape(16.dp))
+                .background(SecondaryColor)
+                .padding(15.dp)
+        ) {
+            Row {
+                Column(modifier = Modifier.fillMaxWidth(0.4f)) {
+                    Image(
+                        painter = painterResource(R.drawable.list),
+                        contentDescription = "Example Image", // Description for accessibility
+                        modifier = Modifier.size(60.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(25.dp))
+                Column(modifier = Modifier
+                    .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start) {
+                    Text(text = "Enter your shopping list.", color = OnPrimary, fontSize = 24.sp)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         BasicTextField(
             value = currentItem,
             onValueChange = { currentItem = it },
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .background(SuccessColor, MaterialTheme.shapes.small)
+                .fillMaxWidth(0.9f)
+                .border(1.dp, PrimaryColor, shape = RoundedCornerShape(10.dp)) // Rounded border
+                .clip(RoundedCornerShape(10.dp)) // Apply the same shape to clip the content inside
+                .background(OnPrimary, shape = RoundedCornerShape(10.dp)) // Rounded background
                 .padding(16.dp)
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
@@ -66,42 +114,68 @@ fun UserScreen(navController: NavController, viewModel: UserScreenViewModel){
                     currentItem = "" // Clear input field
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth(0.9f),
+            colors = ButtonColors(
+                containerColor = TertiaryColor,
+                contentColor = OnPrimary,
+                disabledContentColor = OnPrimary,
+                disabledContainerColor = PrimaryColor
+            )
+
         ) {
-            Text("Add Item")
+            Text("Add Item + ", fontSize = 18.sp, modifier = Modifier.padding(15.dp))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (itemsList.isNotEmpty()) {
-            Text(
-                text = "Items:",
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Column {
-                itemsList.forEachIndexed { index, item ->
-                    ItemView(
-                        item = item,
-                        onItemClicked = {
-                            itemsList = itemsList.toMutableList().apply { removeAt(index) }
-                        },
-                        onItemLongClicked = {
-                            itemsList = itemsList.toMutableList().apply { removeAt(index) }
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.9f)
+                .height(200.dp)
+                .verticalScroll(rememberScrollState()) // Enables vertical scrolling
+        ) {
+            if (itemsList.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Column {
+                    itemsList.forEachIndexed { index, item ->
+                        ItemView(
+                            item = item,
+                            onItemClicked = {
+                                itemsList = itemsList.toMutableList().apply { removeAt(index) }
+                            },
+                            onItemLongClicked = {
+                                itemsList = itemsList.toMutableList().apply { removeAt(index) }
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                 }
             }
         }
+
 
         Button(
             onClick = {
                 fetch_customer_item_list(itemsList)
                 navController.navigate("user_confirm_screen")
             },
-            modifier = Modifier.fillMaxWidth()
+            colors = ButtonColors(
+                containerColor = TertiaryColor,
+                contentColor = OnPrimary,
+                disabledContentColor = OnPrimary,
+                disabledContainerColor = PrimaryColor
+            ),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth(0.9f)
         ) {
-            Text("Continue")
+            Text("Continue", fontSize = 18.sp, modifier = Modifier.padding(15.dp))
+            Spacer(modifier = Modifier.width(8.dp)) // Add some spacing between the text and the icon
+            Icon(
+                imageVector = Icons.Default.ArrowForward, // Use the built-in arrow forward icon
+                contentDescription = "Next",
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -114,11 +188,37 @@ fun UserScreenPreview(){
 
     Column(
         modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Top
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Enter items")
+        TopBarUser()
+
+        Spacer(modifier = Modifier.height(20.dp))
+        
+        Column(
+            Modifier
+                .fillMaxWidth(0.9f)
+                .clip(shape = RoundedCornerShape(16.dp))
+                .background(SecondaryColor)
+                .padding(15.dp)
+        ) {
+            Row {
+                Column(modifier = Modifier.fillMaxWidth(0.4f)) {
+                    Image(
+                        painter = painterResource(R.drawable.list),
+                        contentDescription = "Example Image", // Description for accessibility
+                        modifier = Modifier.size(60.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(20.dp))
+                Column(modifier = Modifier
+                    .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start) {
+                    Text(text = "Enter your shopping list.", color = OnPrimary, fontSize = 24.sp)
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -127,11 +227,13 @@ fun UserScreenPreview(){
             onValueChange = { currentItem = it },
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-                .background(SuccessColor, MaterialTheme.shapes.small)
+                .fillMaxWidth(0.9f)
+                .border(1.dp, PrimaryColor, shape = RoundedCornerShape(10.dp)) // Rounded border
+                .clip(RoundedCornerShape(10.dp)) // Apply the same shape to clip the content inside
+                .background(OnPrimary, shape = RoundedCornerShape(10.dp)) // Rounded background
                 .padding(16.dp)
         )
+
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -142,32 +244,62 @@ fun UserScreenPreview(){
                     currentItem = "" // Clear input field
                 }
             },
-            modifier = Modifier.fillMaxWidth()
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth(0.9f),
+            colors = ButtonColors(
+                containerColor = TertiaryColor,
+                contentColor = OnPrimary,
+                disabledContentColor = OnPrimary,
+                disabledContainerColor = PrimaryColor
+            )
+
         ) {
-            Text("Add Item")
+            Text("Add Item + ", fontSize = 18.sp, modifier = Modifier.padding(15.dp))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (itemsList.isNotEmpty()) {
-            Text(
-                text = "Items:",
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Column {
-                itemsList.forEachIndexed { index, item ->
-                    ItemView(
-                        item = item,
-                        onItemClicked = {
-                            itemsList = itemsList.toMutableList().apply { removeAt(index) }
-                        },
-                        onItemLongClicked = {
-                            itemsList = itemsList.toMutableList().apply { removeAt(index) }
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
+        Column (modifier = Modifier.fillMaxWidth(0.9f).height(250.dp)){
+            if (itemsList.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Column {
+                    itemsList.forEachIndexed { index, item ->
+                        ItemView(
+                            item = item,
+                            onItemClicked = {
+                                itemsList = itemsList.toMutableList().apply { removeAt(index) }
+                            },
+                            onItemLongClicked = {
+                                itemsList = itemsList.toMutableList().apply { removeAt(index) }
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                 }
             }
+        }
+
+        Button(
+            onClick = {
+//                fetch_customer_item_list(itemsList)
+//                navController.navigate("user_confirm_screen")
+            },
+            colors = ButtonColors(
+                containerColor = TertiaryColor,
+                contentColor = OnPrimary,
+                disabledContentColor = OnPrimary,
+                disabledContainerColor = PrimaryColor
+            ),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth(0.9f)
+        ) {
+            Text("Continue", fontSize = 18.sp, modifier = Modifier.padding(15.dp))
+            Spacer(modifier = Modifier.width(8.dp)) // Add some spacing between the text and the icon
+            Icon(
+                imageVector = Icons.Default.ArrowForward, // Use the built-in arrow forward icon
+                contentDescription = "Next",
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }
@@ -177,7 +309,8 @@ fun ItemView(item: String, onItemClicked: () -> Unit, onItemLongClicked: () -> U
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(SuccessColor)
+            .clip(RoundedCornerShape(12.dp))
+            .background(LightYellow)
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {

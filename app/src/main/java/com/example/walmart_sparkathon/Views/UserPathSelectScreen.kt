@@ -3,17 +3,31 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.walmart_sparkathon.Models.FileNameHolder
+import com.example.walmart_sparkathon.R
+import com.example.walmart_sparkathon.composables.TopBarUser
+import com.example.walmart_sparkathon.ui.theme.OnPrimary
+import com.example.walmart_sparkathon.ui.theme.PrimaryColor
+import com.example.walmart_sparkathon.ui.theme.SecondaryColor
+import com.example.walmart_sparkathon.ui.theme.TertiaryColor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -53,7 +67,7 @@ fun UserPathSelectScreen(navController: NavController) {
     )
 
     var startDestination by remember { mutableStateOf<String?>(null) }
-    var endDestination by remember { mutableStateOf<String?>(null) }
+    var endDestination by remember { mutableStateOf<String?>("anyValue") }
     var isStartDropdownExpanded by remember { mutableStateOf(false) }
     var isEndDropdownExpanded by remember { mutableStateOf(false) }
     var imagePath by remember { mutableStateOf<String?>(null) }
@@ -61,16 +75,47 @@ fun UserPathSelectScreen(navController: NavController) {
 
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp)) {
+        .background(OnPrimary),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        
+        TopBarUser()
 
-        Text("Select Start Destination")
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column(
+            Modifier
+                .fillMaxWidth(0.9f)
+                .clip(shape = RoundedCornerShape(16.dp))
+                .background(SecondaryColor)
+                .padding(15.dp)
+        ) {
+            Row {
+                Column(modifier = Modifier.fillMaxWidth(0.4f)) {
+                    Image(
+                        painter = painterResource(R.drawable.list),
+                        contentDescription = "Example Image", // Description for accessibility
+                        modifier = Modifier.size(60.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(25.dp))
+                Column(modifier = Modifier
+                    .fillMaxWidth(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.Start) {
+                    Text(text = "Choose your start point", color = OnPrimary, fontSize = 24.sp)
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(100.dp))
 
         Box {
             OutlinedTextField(
                 value = startDestination ?: "",
                 onValueChange = {},
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(0.9f)
                     .clickable { isStartDropdownExpanded = !isStartDropdownExpanded },
                 readOnly = true,
                 label = { Text("Start Destination") },
@@ -99,45 +144,43 @@ fun UserPathSelectScreen(navController: NavController) {
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(180.dp))
 
-        Text("Select End Destination")
+//        Text("Select End Destination")
 
-        Box {
-            OutlinedTextField(
-                value = endDestination ?: "",
-                onValueChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { isEndDropdownExpanded = !isEndDropdownExpanded },
-                readOnly = true,
-                label = { Text("End Destination") },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        contentDescription = "Drop-down arrow",
-                        Modifier.clickable { isEndDropdownExpanded = !isEndDropdownExpanded }
-                    )
-                }
-            )
-            DropdownMenu(
-                expanded = isEndDropdownExpanded,
-                onDismissRequest = { isEndDropdownExpanded = false },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                categories.forEach { category ->
-                    DropdownMenuItem(
-                        text = { Text(text = category) },
-                        onClick = {
-                            endDestination = category
-                            isEndDropdownExpanded = false
-                        }
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
+//        Box {
+//            OutlinedTextField(
+//                value = endDestination ?: "",
+//                onValueChange = {},
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .clickable { isEndDropdownExpanded = !isEndDropdownExpanded },
+//                readOnly = true,
+//                label = { Text("End Destination") },
+//                trailingIcon = {
+//                    Icon(
+//                        imageVector = Icons.Default.ArrowDropDown,
+//                        contentDescription = "Drop-down arrow",
+//                        Modifier.clickable { isEndDropdownExpanded = !isEndDropdownExpanded }
+//                    )
+//                }
+//            )
+//            DropdownMenu(
+//                expanded = isEndDropdownExpanded,
+//                onDismissRequest = { isEndDropdownExpanded = false },
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                categories.forEach { category ->
+//                    DropdownMenuItem(
+//                        text = { Text(text = category) },
+//                        onClick = {
+//                            endDestination = category
+//                            isEndDropdownExpanded = false
+//                        }
+//                    )
+//                }
+//            }
+//        }
 
         Button(
             onClick = {
@@ -160,10 +203,24 @@ fun UserPathSelectScreen(navController: NavController) {
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = startDestination != null && endDestination != null
+            colors = ButtonColors(
+                containerColor = TertiaryColor,
+                contentColor = OnPrimary,
+                disabledContentColor = OnPrimary,
+                disabledContainerColor = PrimaryColor
+            ),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth(0.9f),
+            enabled = startDestination != null && endDestination != null,
+
         ) {
-            Text("Continue")
+            Text("Explore Your Path", fontSize = 18.sp, modifier = Modifier.padding(15.dp))
+            Spacer(modifier = Modifier.width(8.dp)) // Add some spacing between the text and the icon
+            Icon(
+                imageVector = Icons.Default.ArrowForward, // Use the built-in arrow forward icon
+                contentDescription = "Next",
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
 }

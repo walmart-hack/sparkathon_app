@@ -69,7 +69,7 @@ fun SelectProfileScreen(navController: NavController) {
             .fillMaxWidth(0.8f),
             verticalArrangement = Arrangement.SpaceBetween) {
             Button(
-                onClick = {navController.navigate("user_screen")},
+                onClick = {navController.navigate("user_onboard")},
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonColors(
                     containerColor = PrimaryColor,

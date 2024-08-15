@@ -19,6 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.walmart_sparkathon.Views.AdminScreen
 import com.example.walmart_sparkathon.Views.AdminSuccess
+import com.example.walmart_sparkathon.Views.CustomerOnBoard
 import com.example.walmart_sparkathon.Views.ImageTapScreen
 import com.example.walmart_sparkathon.Views.LoginScreen
 import com.example.walmart_sparkathon.Views.SelectProfileScreen
@@ -56,6 +57,9 @@ private fun MainScreen(){
                 }
                 composable(route = "login_screen"){
                     LoginScreen(navController = navController, viewModel = hiltViewModel())
+                }
+                composable(route = "user_onboard"){
+                    CustomerOnBoard(navController = navController)
                 }
                 composable(route = "user_screen"){
                     UserScreen(navController = navController, viewModel = hiltViewModel())

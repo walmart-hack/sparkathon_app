@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -107,7 +108,8 @@ fun AdminScreen(navController: NavController, viewModel: AdminScreenViewModel = 
         Spacer(modifier = Modifier.height(10.dp))
 
         Column(
-            verticalArrangement = Arrangement.Center) {
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally) {
             // Display the selected image
             imageUri?.let {
                 Image(
@@ -125,7 +127,16 @@ fun AdminScreen(navController: NavController, viewModel: AdminScreenViewModel = 
                 )
             } ?: Column(modifier = Modifier
                 .height(200.dp)
-                .background(GrayColor)){}
+                .fillMaxWidth(0.9f)
+                .background(Color.Gray),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally){
+                Image(
+                    painter = painterResource(R.drawable.demo_image),
+                    contentDescription = "Example Image", // Description for accessibility
+                    modifier = Modifier.size(100.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
